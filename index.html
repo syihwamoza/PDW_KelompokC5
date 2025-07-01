@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Touché - Restaurant</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="fonts/font-awesome/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nivo-lightbox/1.3.1/nivo-lightbox.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nivo-lightbox/1.3.1/themes/default/default.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,500,600,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Dancing+Script:400,700" rel="stylesheet">
+
+    <!-- Custom Style -->
+    <style>
+        .admin-only,
+        .user-only,
+        .guest-only {
+            display: none;
+        }
+        .editable-field[contenteditable="true"] {
+            outline: 2px dashed #007bff;
+            padding: 2px 5px;
+            background-color: #e9f5ff;
+        }
+        .edit-mode-controls {
+            margin-left: 10px;
+            display: none;
+        }
+        .add-item-btn {
+            margin-top: 15px;
+        }
+        #loginError,
+        #registerError {
+            color: red;
+            margin-top: 10px;
+        }
+        /* ===== KODE BARU UNTUK MEMPERBAIKI WARNA TEKS RESERVASI ===== */
+        #call-reservation h2 {
+            color: #333; /* Warna abu-abu gelap untuk judul */
+            font-weight: 400; /* Membuat tulisan sedikit lebih tebal dan jelas */
+        }
+
+        #call-reservation p {
+            color: #777; /* Warna abu-abu lebih terang untuk paragraf */
+        }
+        /* ===== KODE BARU UNTUK MEMPERBAIKI SCROLLSPY ===== */
+        body {
+            position: relative; /* Diperlukan oleh Scrollspy */
+            padding-bottom: 300px; /* Memberi ruang scroll tambahan di bawah */
+        }
+        /* ===== KODE BARU UNTUK BACKGROUND RESERVASI ===== */
+        #call-reservation {
+            padding: 100px 0;
+            /* Ganti 'reservation-bg.jpg' dengan nama file gambar Anda */
+            background: url('img/reservation-bg.jpg') center center no-repeat;
+            background-size: cover; /* Membuat gambar memenuhi section */
+        }
+
+        #call-reservation .overlay {
+            background: rgba(0, 0, 0, 0.7); /* Overlay hitam transparan */
+        }
+
+        /* Membuat tulisan judul dan paragraf menjadi putih agar kontras */
+        #call-reservation h2, 
+        #call-reservation p {
+            color: #fff;
+        }
+
+        #call-reservation hr {
+            background: #fff;
+        }
+
+        /* Memberi sedikit style pada form agar terlihat lebih baik di atas background gelap */
+        #call-reservation .form-control {
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+
+<body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
+
+    <!-- Navigation -->
+    <nav id="menu" class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand page-scroll" href="#page-top">Touché</a>
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                    <!-- Item untuk user biasa -->
+                    <li class="user-only"><a href="#about" class="page-scroll">About</a></li>
+                    
+                    <!-- ===== PERUBAHAN URUTAN DI SINI ===== -->
+                    <!-- Item Admin Panel dipindahkan ke sini agar muncul pertama untuk Admin -->
+                    <li class="admin-only"><a href="#admin-section" class="page-scroll">Admin Panel</a></li>
+                    
+                    <!-- Menu yang bisa dilihat USER dan ADMIN -->
+                    <li class="user-only admin-only"><a href="#restaurant-menu" class="page-scroll">Menu</a></li>
+                    
+                    <!-- Item lanjutan untuk user biasa -->
+                    <li class="user-only"><a href="#portfolio" class="page-scroll">Gallery</a></li>
+                    <li class="user-only"><a href="#team" class="page-scroll">Chefs</a></li>
+                    <li class="user-only"><a href="#contact-section" class="page-scroll">Contact</a></li>
+
+                    <!-- Tombol dinamis tergantung status login -->
+                    <li class="guest-only"><a href="#" data-toggle="modal" data-target="#loginModal">Login</a></li>
+                    <li class="guest-only"><a href="#" data-toggle="modal" data-target="#registerModal">Register</a></li>
+                    
+                    <!-- Item yang hanya muncul jika sudah login -->
+                    <li class="user-only"><a href="#call-reservation" class="page-scroll">Reservation</a></li>
+                    <li class="admin-only user-only"><a href="#" id="logoutBtn">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Login</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" class="form-control" id="loginUsername" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" class="form-control" id="loginPassword" required>
+                        </div>
+                        <div id="loginError" class="text-danger"></div>
+                        <button type="submit" class="btn btn-primary btn-block">Login</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Register</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <form id="registerForm">
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" class="form-control" id="registerUsername" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" class="form-control" id="registerPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Confirm Password</label>
+                            <input type="password" class="form-control" id="confirmPassword" required>
+                        </div>
+                        <div id="registerError" class="text-danger"></div>
+                        <button type="submit" class="btn btn-primary btn-block">Register</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header Section -->
+    <header id="header">
+        <div class="intro">
+            <div class="overlay">
+                <div class="container">
+                    <div class="row">
+                        <div class="intro-text">
+                            <h1>Touché</h1>
+                            <p>Restaurant / Coffee / Pub</p>
+                            <a href="#about" class="btn btn-custom btn-lg page-scroll">Discover Story</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== BAGIAN BARU: ANGGOTA KELOMPOK ===== -->
+    <div id="kelompok-section" class="text-center" style="padding: 100px 0; background-color: #f9f9f9;">
+        <div class="container">
+            <div class="section-title">
+                <h2>Anggota Kelompok 5</h2>
+                <hr>
+            </div>
+            <div class="row">
+                <div class="col-md-8 col-md-offset-2">
+                    <ul style="list-style: none; padding: 0; font-size: 18px; line-height: 2;">
+                        <li>Syihwa Moza Alika YP Kastella - 20230140111</li>
+                        <li>Sekar Asri Maghfirah - 20230140128</li>
+                        <li>Raehan Arjun Afrizal - 20230140120</li>
+                        <li>Dara Syauqi Darmawan - 20230140140</li>
+                        <li>Muhammad Bagas Prasetyo Rinaldi - 20230140143</li>
+                        <li>Ahmad Zaki Mahogra - 20230140144</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ===== AKHIR BAGIAN BARU ===== -->
+
+
+    <!-- About Section -->
+   <div id="about" class="text-center user-only" style="padding: 100px 0; display: none;">
+        <div class="container">
+            <h2>About Us</h2>
+            <hr>
+            <p>
+                Selamat datang di Touché, di mana tradisi kuliner klasik Eropa dan semangat inovasi Amerika bertemu di atas satu piring. "Discover Story" bukan sekadar slogan bagi kami; itu adalah undangan untuk merasakan perjalanan rasa yang kami kurasi dengan sepenuh hati. Dari steak premium yang dipanggang sempurna hingga pasta buatan tangan yang lembut, setiap menu kami adalah hasil dari pencarian tanpa henti akan bahan baku terbaik dan teknik memasak yang presisi.
+            </br></br>
+                Nikmati suasana kami yang elegan namun tetap santai, tempat yang sempurna untuk makan malam romantis, pertemuan bisnis, atau sekadar menikmati secangkir kopi artisan dan hidangan penutup yang memanjakan. Di Touché, setiap detail berarti, karena kami percaya bahwa pengalaman bersantap yang luar biasa adalah perpaduan sempurna antara makanan lezat, layanan tulus, dan atmosfer yang tak terlupakan.
+            </p>
+        </div>
+    </div>
+
+    <!-- Admin Panel Section -->
+    <div id="admin-section" class="text-center admin-only" style="padding: 100px 0; background-color: #f0f0f0;">
+        <div class="container">
+            <h2>Admin Panel</h2>
+            <hr>
+            <p>Welcome, Admin! Use the buttons below to manage website content.</p>
+            <button id="toggleEditMenuBtn" class="btn btn-info">Edit Menu</button>
+            <button id="viewReportBtn" class="btn btn-warning">View Report</button>
+        </div>
+    </div>
+
+    <!-- Restaurant Menu Section -->
+    <!-- ===== PERUBAHAN DI SINI: Menu bisa dilihat USER dan ADMIN ===== -->
+    <div id="restaurant-menu" class="user-only admin-only" style="display: none;">
+        <div class="section-title text-center center">
+            <div class="overlay">
+                <h2>Menu</h2>
+                <hr>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit duis sed.</p>
+            </div>
+        </div>
+        <div class="container">
+            <div id="menu-content-row" class="row">
+                <!-- Konten menu dinamis dari JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Portfolio (Gallery) Section -->
+    <div id="portfolio" class="user-only" style="display: none;">
+        <div class="section-title text-center center">
+            <div class="overlay">
+                <h2>Gallery</h2>
+                <hr>
+                <p>Beberapa foto hidangan spesial dari restoran kami.</p>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="categories">
+                    <ul class="cat">
+                        <li>
+                            <ol class="type">
+                                <li><a href="#" data-filter="*" class="active">All</a></li>
+                                <li><a href="#" data-filter=".breakfast">Breakfast</a></li>
+                                <li><a href="#" data-filter=".lunch">Lunch</a></li>
+                                <li><a href="#" data-filter=".dinner">Dinner</a></li>
+                            </ol>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="portfolio-items">
+                    <div class="col-sm-6 col-md-4 col-lg-4 breakfast">
+                        <div class="portfolio-item">
+                            <div class="hover-bg">
+                                <a href="img/portfolio/01-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
+                                    <div class="hover-text"><h4>Dish Name</h4></div>
+                                    <img src="img/portfolio/01-small.jpg" class="img-responsive" alt="Project Title">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4 col-lg-4 dinner">
+                        <div class="portfolio-item">
+                            <div class="hover-bg">
+                                <a href="img/portfolio/02-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
+                                    <div class="hover-text"><h4>Dish Name</h4></div>
+                                    <img src="img/portfolio/02-small.jpg" class="img-responsive" alt="Project Title">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4 col-lg-4 breakfast">
+                        <div class="portfolio-item">
+                            <div class="hover-bg">
+                                <a href="img/portfolio/03-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
+                                    <div class="hover-text"><h4>Dish Name</h4></div>
+                                    <img src="img/portfolio/03-small.jpg" class="img-responsive" alt="Project Title">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4 col-lg-4 dinner">
+                        <div class="portfolio-item">
+                            <div class="hover-bg">
+                                <a href="img/portfolio/04-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
+                                    <div class="hover-text"><h4>Dish Name</h4></div>
+                                    <img src="img/portfolio/04-small.jpg" class="img-responsive" alt="Project Title">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4 col-lg-4 lunch">
+                        <div class="portfolio-item">
+                            <div class="hover-bg">
+                                <a href="img/portfolio/05-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
+                                    <div class="hover-text"><h4>Dish Name</h4></div>
+                                    <img src="img/portfolio/05-small.jpg" class="img-responsive" alt="Project Title">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4 col-lg-4 lunch">
+                        <div class="portfolio-item">
+                            <div class="hover-bg">
+                                <a href="img/portfolio/06-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
+                                    <div class="hover-text"><h4>Dish Name</h4></div>
+                                    <img src="img/portfolio/06-small.jpg" class="img-responsive" alt="Project Title">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Team Section -->
+    <div id="team" class="user-only" style="display: none;">
+        <div class="overlay">
+            <div class="container">
+                <div class="col-md-10 col-md-offset-1 section-title">
+                    <h2>Meet Our Chefs</h2>
+                    <hr>
+                    <p>Dipimpin oleh para juru masak berbakat dengan passion untuk cita rasa.</p>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 team-img">
+                        <div class="thumbnail">
+                            <div class="team-img"><img src="img/team/01.jpg" alt="..."></div>
+                            <div class="caption">
+                                <h3>Mike Doe</h3>
+                                <p>Executive Chef</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 team-img">
+                        <div class="thumbnail">
+                            <div class="team-img"><img src="img/team/02.jpg" alt="..."></div>
+                            <div class="caption">
+                                <h3>Chris Doe</h3>
+                                <p>Pastry Chef</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 team-img">
+                        <div class="thumbnail">
+                            <div class="team-img"><img src="img/team/03.jpg" alt="..."></div>
+                            <div class="caption">
+                                <h3>Jane Doe</h3>
+                                <p>Sous Chef</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact & Reservation -->
+    <!-- Contact Section -->
+    <div id="contact-section" class="text-center user-only" style="padding: 100px 0;">
+        <div class="container">
+            <div class="section-title text-center">
+                <h2>Contact Us</h2>
+                <hr>
+            </div>
+            <div class="col-md-10 col-md-offset-1">
+                
+                <!-- Pesan ini hanya untuk USER BIASA yang sudah login -->
+                <div class="user-only">
+                    <h3>Untuk melakukan reservasi, silakan isi form pada bagian <a href="#call-reservation" class="page-scroll">Reservation</a>.</h3>
+                    <p>Jika ada pertanyaan lain, Anda bisa menghubungi kami melalui:</p>
+                </div>
+
+                <!-- Pesan ini hanya untuk TAMU yang belum login -->
+                <div class="guest-only">
+                    <h3>Untuk melakukan reservasi, Anda harus <a href="#" data-toggle="modal" data-target="#loginModal">Login</a> atau <a href="#" data-toggle="modal" data-target="#registerModal">Register</a> terlebih dahulu.</h3>
+                    <p>Informasi lebih lanjut dapat ditanyakan melalui:</p>
+                </div>
+
+                <!-- Informasi kontak ini akan terlihat oleh SEMUA PENGGUNA (termasuk admin) -->
+                <div class="contact-info">
+                    <div class="col-md-4">
+                        <i class="fa fa-map-marker fa-2x"></i>
+                        <p>123 Restaurant St, Food City<br>Jakarta, Indonesia 12345</p>
+                    </div>
+                    <div class="col-md-4">
+                        <i class="fa fa-phone fa-2x"></i>
+                        <p>+62 812 3456 7890</p>
+                    </div>
+                    <div class="col-md-4">
+                        <i class="fa fa-envelope-o fa-2x"></i>
+                        <p>info@touche-resto.com</p>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+       <!-- Reservation Section (Hanya untuk user yang sudah login) -->
+    <div id="call-reservation" class="text-center user-only">
+        <div class="overlay">
+            <div class="container">
+                <div class="section-title text-center">
+                    <h2>Make a Reservation</h2>
+                    <hr>
+                    <p>Please fill out the form below to make your reservation</p>
+                </div>
+                <div class="col-md-8 col-md-offset-2">
+                    <form id="reservationForm" name="sentMessage" novalidate>
+                        <!-- Form Row 1 -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" id="name" class="form-control" placeholder="Your Name" required="required">
+                                    <p class="help-block text-danger"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="tel" id="phone" class="form-control" placeholder="Phone Number" required="required">
+                                    <p class="help-block text-danger"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Form Row 2 -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="date" id="date" class="form-control" required="required">
+                                    <p class="help-block text-danger"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="time" id="time" class="form-control" required="required">
+                                    <p class="help-block text-danger"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Form Row 3 -->
+                        <div class="form-group">
+                            <select class="form-control" id="guests" required="required">
+                                <option value="" disabled selected>Number of Guests</option>
+                                <option>1 Person</option>
+                                <option>2 People</option>
+                                <option>3 People</option>
+                                <option>4+ People</option>
+                            </select>
+                            <p class="help-block text-danger"></p>
+                        </div>
+                        <!-- Form Row 4 -->
+                        <div class="form-group">
+                            <textarea id="special_request" class="form-control" rows="4" placeholder="Special Requests"></textarea>
+                        </div>
+                        <div id="success"></div>
+                        <button type="submit" class="btn btn-custom btn-lg">Make Reservation</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Report Modal -->
+    <div class="modal fade" id="reportModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Restaurant Report</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body" id="reportModalBody">
+                    <p>Loading report...</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScripts -->
+    <script src="js/jquery.1.11.1.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <script src="https://unpkg.com/isotope-layout@3/dist/isotope.pkgd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nivo-lightbox/1.3.1/nivo-lightbox.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Script Kustom -->
+    <script src="js/main.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+</html>

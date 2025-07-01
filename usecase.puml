@@ -1,0 +1,78 @@
+  @startuml
+skinparam actorStyle awesome
+skinparam usecase {
+  BackgroundColor White
+  BorderColor Black
+  ArrowColor Black
+  FontSize 12
+}
+
+left to right direction
+
+actor User
+actor Admin
+
+rectangle "Sistem Website Restoran - Touché" {
+
+  '=== USER USE CASES ===
+  together {
+    usecase UC_User_Home as "Home (User)"
+    usecase UC_User_Contact as "Contact (User)"
+    usecase UC_User_Login as "Login (User)"
+    usecase UC_User_Register as "Register (User)"
+    usecase UC_User_About as "About (User)"
+    usecase UC_User_Menu as "Menu (User)"
+    usecase UC_User_Gallery as "Gallery (User)"
+    usecase UC_User_Cheff as "Cheff (User)"
+    usecase UC_Gallery_All as "All Menu"
+    usecase UC_Gallery_Breakfast as "Breakfast Menu"
+    usecase UC_Gallery_Lunch as "Lunch Menu"
+    usecase UC_Gallery_Dinner as "Dinner Menu"
+    usecase UC_User_Reservation as "Reservation (User)"
+    usecase UC_User_Submit as "Submit Reservation"
+    usecase UC_User_Logout as "Logout (User)"
+  }
+
+  '=== ADMIN USE CASES ===
+  together {
+    usecase UC_Admin_Home as "Home (Admin)"
+    usecase UC_Admin_Login as "Login (Admin)"
+    usecase UC_Admin_Menu as "Menu (Admin)"
+    usecase UC_Admin_Panel as "Admin Panel"
+    usecase UC_Admin_Edit as "Edit Menu"
+    usecase UC_Add_Menu as "Tambah Menu"
+    usecase UC_Delete_Menu as "Hapus Menu"
+    usecase UC_Admin_Report as "View Report"
+    usecase UC_Admin_Logout as "Logout (Admin)"
+  }
+
+  '=== USER CONNECTIONS ===
+  User --> UC_User_Login
+  User --> UC_User_Register
+  UC_User_Register ..> UC_User_Login : <<include>>
+  UC_User_Login <.. UC_User_Home : <<extend>>
+  UC_User_Login <.. UC_User_Contact : <<extend>>
+  UC_User_Login <.. UC_User_About : <<extend>>
+  UC_User_Login <.. UC_User_Menu : <<extend>>
+  UC_User_Login <.. UC_User_Gallery : <<extend>>
+  UC_User_Login <.. UC_User_Cheff : <<extend>>
+  UC_User_Gallery <.. UC_Gallery_All : <<extend>>
+  UC_User_Gallery <.. UC_Gallery_Breakfast : <<extend>>
+  UC_User_Gallery <.. UC_Gallery_Lunch : <<extend>>
+  UC_User_Gallery <.. UC_Gallery_Dinner : <<extend>>
+  UC_User_Login ..> UC_User_Reservation : <<include>>
+  UC_User_Reservation ..> UC_User_Submit : <<include>>
+  UC_User_Login <.. UC_User_Logout : <<extend>>
+
+  '=== ADMIN CONNECTIONS ===
+  Admin --> UC_Admin_Login
+  UC_Admin_Login <.. UC_Admin_Home : <<extend>>
+  UC_Admin_Login <.. UC_Admin_Menu : <<extend>>
+  UC_Admin_Login <.. UC_Admin_Panel : <<extend>>
+  UC_Admin_Login <.. UC_Admin_Logout : <<extend>>
+  UC_Admin_Panel <.. UC_Admin_Edit : <<extend>>
+  UC_Admin_Edit <.. UC_Add_Menu : <<extend>>
+  UC_Admin_Edit <.. UC_Delete_Menu : <<extend>>
+  UC_Admin_Panel <.. UC_Admin_Report : <<extend>>
+}
+@enduml
